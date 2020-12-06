@@ -1,4 +1,3 @@
-from application import utils
 
 def parse_request(request_data, ip_port):
     """解析请求的报文，返回客户端请求的资源路径"""
@@ -30,6 +29,14 @@ def application(current_dir, request_data, ip_port):
 
     # 定义变量保存资源路径
     resource_path = current_dir + file_path
+    # 9、拼接响应的报文
+    # 9.1 响应行
+    response_line = "HTTP/1.1 200 OK\r\n"
+    # 9.2 响应头
+    response_header = "Server: Python20WS/1.1\r\n"
+    # 9.3 响应空行
+    response_blank = "\r\n"
+    # 9.4 响应主体
     # response_body = "<h1>hello world</h1>"
     # ****************** 返回固定页面 *********************
     try:
@@ -37,13 +44,13 @@ def application(current_dir, request_data, ip_port):
         with open(resource_path, "rb") as file:
             # 把读取的文件内容返回给客户端
             response_body = file.read()
-        # 调用utils模块的create_http_response函数，拼接响应协议
-        response_data = utils.create_http_response("200 OK", response_body)
     except Exception as e:
-        # 1）响应的内容为错误哟
+        # 1)重新修改响应行为404
+        response_line = "HTTP/1.1 404 Not Found\r\n"
+        # 2）响应的内容为错误哟
         response_body = "Error!(%s)" % str(e)
-        # 2)把内容转换为字节吗
+        # 3)把内容转换为字节吗
         response_body = response_body.encode()
-        response_data = utils.create_http_response("404 Not Found", "Error!(%s)" % str(e))
 
+    response_data = (response_line + response_header + response_blank).encode() + response_body
     return response_data
